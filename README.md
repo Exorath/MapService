@@ -6,33 +6,38 @@ The MapService is responsible for the uploading and downloading of map versions.
 ###Gets general information about all maps
 
 **argument**
-- mapPrefix (string): only map names with this prefix will be returned.
+- mapPrefix (string) [OPTIONAL]: only map names with this prefix will be returned.
 
 **Response**:
 ```json
-{ 
-  "map1": {
-    "envs": {
-      "dev": {
-        "size": 5586321,
-        "lastModified" : 1480178827038
-      },
-      "production": {
-        "size": 4326402,
-        "lastModified" : 1480178826024
-      }
-    }
-  },"map2": {
+{
+  "maps": {
+    "map1": {
       "envs": {
         "dev": {
           "size": 5586321,
           "lastModified" : 1480178827038
+        },
+        "production": {
+          "size": 4326402,
+          "lastModified" : 1480178826024
         }
       }
-    }
+    },"map2": {
+        "envs": {
+          "dev": {
+            "size": 5586321,
+            "lastModified" : 1480178827038
+          }
+        }
+      }
+  }
 }
 ```
-
+- maps (map of maps by their mapId)
+  - envs (environments by their envId)
+    - size (long): size of latest version in bytes
+    - lastModified (UNIX timestamp): timestamp of date of latest upload
 
 ###/maps/{mapId}/env/{env}/download [GET]
 ####Gets general information about the mapId
@@ -51,14 +56,15 @@ FileOutputStream with ZIP'd map contents
 **Response**:
 ```json
 {
+  "truncated": true,
   "versions": {
     "111111":{
       "size": 5586321,
-      "lastModified": 1480178827038
+      "date": 1480178827038
     }, 
     "222222":{
       "size": 5586321,
-      "lastModified": 1480178827038,
+      "uploaded": 1480178827038,
       "latest": true
     }
   }
@@ -66,12 +72,11 @@ FileOutputStream with ZIP'd map contents
 ```
 Returns {} if mapId/envId not found was not found.
 
-- mapId (string): the id of this map
-- envId (string): the id of this environment
-- download (string): HTTP address to download the latest zip of this world.
-- version (int): the version of the map within this environment
-- lastModified (UNIX timestamp): timestamp of the latest upload time
-- versions (int array): an array of the version history (TODO: Allow a limit for this)
+- truncated (bool) [OPTIONAL]: Defaults to false, if true you can make a new call with the latest versionId in the version list to get the next page of versions
+- versions (version map by versionId)
+  - size (long): the size of this version in bytes
+  - date (UNIX timestamp): timestamp of the upload time
+  - latest (bool) [OPTIONAL]: Whether or not this is the used version (the default one)
 
 ###/maps/{mapId}/env/{env} [POST]
 ####Uploads a map version to the environment of the specified map, this will be used as the 'latest' version in the environment
