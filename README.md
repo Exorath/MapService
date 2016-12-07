@@ -40,7 +40,7 @@ The MapService is responsible for the uploading and downloading of map versions.
     - lastModified (UNIX timestamp): timestamp of date of latest upload
 
 ###/maps/{mapId}/env/{env}/download [GET]
-####Gets general information about the mapId
+####Download the latest version (or specific version) of a map as a ZIP
 
 **arguments**
 - versionId (string) [OPTIONAL]: the versionId of the map version you wish to download
