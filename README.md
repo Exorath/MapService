@@ -60,7 +60,7 @@ FileOutputStream with ZIP'd map contents
   "versions": {
     "111111":{
       "size": 5586321,
-      "date": 1480178827038
+      "lastModified": 1480178827038
     }, 
     "222222":{
       "size": 5586321,
