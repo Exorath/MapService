@@ -45,7 +45,12 @@ public class S3Service implements Service {
         amazonS3Client = new AmazonS3Client(dbProvider.getCredentials());
         amazonS3Client.setRegion(Region.getRegion(dbProvider.getRegion()));
         bucketName = bucketNameProvider.getTableName();
-        amazonS3Client.createBucket(bucketName);
+        try {
+            amazonS3Client.createBucket(bucketName);
+        }catch(AmazonS3Exception e){
+            if(e.getStatusCode() != 409)//Bucket already created
+                throw e;
+        }
         //Enable versioning
         amazonS3Client.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
                 new BucketVersioningConfiguration()
