@@ -16,6 +16,10 @@
 
 package com.exorath.service.map;
 
+import com.exorath.service.commons.dynamoDBProvider.DynamoDBProvider;
+import com.exorath.service.commons.portProvider.PortProvider;
+import com.exorath.service.commons.tableNameProvider.TableNameProvider;
+import com.exorath.service.map.impl.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +30,10 @@ public class Main {
     private Service service;
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private Main() {
-        this.service = null;//TODO: Set service impl
+        this.service = new S3Service(DynamoDBProvider.getEnvironmentDynamoDBProvider(), TableNameProvider.getEnvironmentTableNameProvider("BUCKET_NAME"));//TODO: Set service impl
         LOG.info("Service " + this.service.getClass() + " instantiated");
-
+        Transport.setup(service, PortProvider.getEnvironmentPortProvider());
+        LOG.info("HTTP Transport initiated");
     }
 
     public static void main(String[] args) {

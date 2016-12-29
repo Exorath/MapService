@@ -16,13 +16,11 @@
 
 package com.exorath.service.map.res;
 
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by toonsev on 12/3/2016.
  */
 public class UploadReleaseSuccess extends Success {
-    @SerializedName("version")
     private String versionId;
     public UploadReleaseSuccess(boolean success){
         super(success);

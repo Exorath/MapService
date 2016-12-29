@@ -60,7 +60,7 @@ public class S3Service implements Service {
         ListObjectsV2Request request = new ListObjectsV2Request();
         request.setBucketName(bucketName);
         request.setPrefix(prefix);
-        request.setStartAfter(replaceSlashes(getMapsReq.getStartAfter()));
+        request.setStartAfter(getMapsReq.getUserId() + "/" + getMapsReq.getStartAfter());
         request.setMaxKeys(getMapsReq.getMaxEnvs());
 
         ListObjectsV2Result result = amazonS3Client.listObjectsV2(request);
@@ -89,7 +89,8 @@ public class S3Service implements Service {
         ListVersionsRequest request = new ListVersionsRequest()
                 .withBucketName(bucketName)
                 .withPrefix(format(getMapEnvReq.getUserId(), getMapEnvReq.getMapId(), getMapEnvReq.getEnvId()))
-                .withVersionIdMarker(getMapEnvReq.getVersionIdStart())
+                .withVersionIdMarker(
+                        getMapEnvReq.getVersionIdStart())
                 .withMaxResults(getMapEnvReq.getMaxEnvs());
         VersionListing versionListing = amazonS3Client.listVersions(request);
         GetMapEnvRes mapEnvRes = new GetMapEnvRes(versionListing.isTruncated());
