@@ -21,6 +21,7 @@ import com.exorath.service.map.res.DownloadMapReq;
 import com.exorath.service.map.res.GetMapEnvReq;
 import com.exorath.service.map.res.GetMapsReq;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import spark.Route;
 import spark.utils.IOUtils;
 
@@ -67,10 +68,15 @@ public class Transport {
             try(InputStream inputStream = service.downloadMap(downloadMapReq)) {
                 try (OutputStream outputStream = res.raw().getOutputStream()) {
                     IOUtils.copy(inputStream, outputStream);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+            }catch(Exception e){
+                e.printStackTrace();
+                return null;
             }
             res.type("application/zip");
-            return null;
+            return new JsonObject();
         };
     }
 
