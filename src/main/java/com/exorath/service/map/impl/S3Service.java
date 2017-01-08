@@ -47,8 +47,8 @@ public class S3Service implements Service {
         bucketName = bucketNameProvider.getTableName();
         try {
             amazonS3Client.createBucket(bucketName);
-        }catch(AmazonS3Exception e){
-            if(e.getStatusCode() != 409)//Bucket already created
+        } catch (AmazonS3Exception e) {
+            if (e.getStatusCode() != 409)//Bucket already created
                 throw e;
         }
         //Enable versioning
@@ -61,14 +61,18 @@ public class S3Service implements Service {
     //implemented.
     @Override
     public GetMapsRes getMaps(GetMapsReq getMapsReq) {
-        String prefix = format(getMapsReq.getUserId(), getMapsReq.getPrefixFilter());
+        String prefixFilter = getMapsReq.getPrefixFilter() == null ? "" : getMapsReq.getPrefixFilter();
+        String prefix = format(getMapsReq.getUserId(), prefixFilter);
+        System.out.println(prefix);
         ListObjectsV2Request request = new ListObjectsV2Request();
         request.setBucketName(bucketName);
         request.setPrefix(prefix);
-        request.setStartAfter(getMapsReq.getUserId() + "/" + getMapsReq.getStartAfter());
+        if (getMapsReq.getStartAfter() != null)
+            request.setStartAfter(getMapsReq.getUserId() + "/" + getMapsReq.getStartAfter());
         request.setMaxKeys(getMapsReq.getMaxEnvs());
 
         ListObjectsV2Result result = amazonS3Client.listObjectsV2(request);
+        System.out.println(result.getObjectSummaries().size());
         GetMapsRes getMapsRes = new GetMapsRes(result.isTruncated());
         //Go over all objects (environments) and add them to their mapInfo (or create mapInfo if nonexistent), add these to a GetMapsRes
         for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
@@ -79,8 +83,10 @@ public class S3Service implements Service {
             }
             MapEnv mapEnv = new MapEnv(objectSummary.getLastModified().getTime(), objectSummary.getSize());
             MapInfo mapInfo = getMapsRes.getMaps().get(parts[1]);
-            if(mapInfo == null)
+            if (mapInfo == null) {
                 mapInfo = new MapInfo();
+                getMapsRes.getMaps().put(parts[1], mapInfo);
+            }
             mapInfo.getEnvironments().put(parts[2], mapEnv);
         }
         return getMapsRes;
@@ -89,7 +95,7 @@ public class S3Service implements Service {
     //implemented.
     @Override
     public GetMapEnvRes getMapEnvInfo(GetMapEnvReq getMapEnvReq) {
-        if(getMapEnvReq.getUserId() == null || getMapEnvReq.getMapId() == null || getMapEnvReq.getEnvId() == null)
+        if (getMapEnvReq.getUserId() == null || getMapEnvReq.getMapId() == null || getMapEnvReq.getEnvId() == null)
             throw new IllegalArgumentException("UserId, mapId or envId not provided");
         ListVersionsRequest request = new ListVersionsRequest()
                 .withBucketName(bucketName)
@@ -100,7 +106,7 @@ public class S3Service implements Service {
         VersionListing versionListing = amazonS3Client.listVersions(request);
         GetMapEnvRes mapEnvRes = new GetMapEnvRes(versionListing.isTruncated());
 
-        for(S3VersionSummary versionSummary :  versionListing.getVersionSummaries()){
+        for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
             String versionId = versionSummary.getVersionId();
             Boolean latest = versionSummary.isLatest() ? true : null;
             mapEnvRes.getVersions().put(versionId, new MapVersion(versionSummary.getLastModified().getTime(), versionSummary.getSize(), latest));
@@ -116,6 +122,7 @@ public class S3Service implements Service {
         S3Object object = amazonS3Client.getObject(request);
         return object == null ? null : object.getObjectContent();
     }
+
     @Override
     public UploadReleaseSuccess uploadRelease(String accountId, String mapId, String envId, InputStream fileInput) {
         accountId = replaceSlashes(accountId);
@@ -125,13 +132,15 @@ public class S3Service implements Service {
         PutObjectResult result = amazonS3Client.putObject(putObjectRequest);
         return result.getVersionId() == null ? new UploadReleaseSuccess(false) : new UploadReleaseSuccess(result.getVersionId());
     }
-    public static String format(String userId, String... nextParts){
+
+    public static String format(String userId, String... nextParts) {
         String formatted = replaceSlashes(userId);
-        for(String s : nextParts){
+        for (String s : nextParts) {
             formatted += "/" + replaceSlashes(s);
         }
         return formatted;
     }
+
     private static final String replaceSlashes(String original) {
 
         return original == null ? null : original.replaceAll("/", "_");
