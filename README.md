@@ -1,4 +1,4 @@
-# MapService
+# MapService [![Build Status](https://travis-ci.org/Exorath/MapService.svg?branch=master)](https://travis-ci.org/Exorath/MapService)
 The MapService is responsible for the uploading and downloading of map versions.
 
 ##Endpoints
