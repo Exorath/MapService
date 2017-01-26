@@ -36,7 +36,7 @@
                             <mainClass>com.exorath.service.map.Main</mainClass>
                         </transformer>
                     </transformers>
-                    <!-- put your configurations here -->
+                    <finalName>ServerArchitect</finalName>
                 </configuration>
                 <executions>
                     <execution>
