@@ -97,6 +97,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>zt-zip</artifactId>
+            <version>1.10</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>com.github.Exorath</groupId>
             <artifactId>ServiceCommons</artifactId>
             <version>1.4.2</version>

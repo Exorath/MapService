@@ -19,10 +19,12 @@ package com.exorath.service.map.api;
 import com.exorath.service.map.res.*;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.GetRequest;
 import com.mashape.unirest.request.HttpRequest;
 import com.mashape.unirest.request.HttpRequestWithBody;
+import org.zeroturnaround.zip.ZipUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -44,6 +46,18 @@ public class MapServiceAPI {
         if(downloadMapReq.getVersionId() != null)
             request = request.queryString("versionId", downloadMapReq.getVersionId());
         return request.asBinary().getBody();
+    }
+
+    public void downloadMapToFolder(DownloadMapReq downloadMapReq, File mapDir) throws Exception{
+        if (!mapDir.exists())
+            mapDir.mkdirs();
+        if (!mapDir.isDirectory())
+            throw new IllegalStateException("Mapsdir is not a directory.");
+        try(InputStream inputStream = downloadMap(downloadMapReq)){
+            if(inputStream == null)
+                throw new NullPointerException("Failed to download a map.");
+            unZip(inputStream, mapDir);
+        }
     }
 
     public GetMapsRes getMaps(GetMapsReq getMapsReq) throws Exception{
@@ -84,5 +98,9 @@ public class MapServiceAPI {
     }
     private String url(String endpoint){
         return address + endpoint;
+    }
+
+    private void unZip(InputStream inputStream, File outputFolder) throws IOException {
+        ZipUtil.unpack(inputStream, outputFolder);
     }
 }
