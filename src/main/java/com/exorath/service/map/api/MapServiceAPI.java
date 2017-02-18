@@ -39,7 +39,7 @@ public class MapServiceAPI {
     }
 
     public InputStream downloadMap(DownloadMapReq downloadMapReq) throws Exception {
-        HttpRequest request = Unirest.get(url("/accounts/:userId/maps/:mapId/env/:envId/download"))
+        HttpRequest request = Unirest.get(url("/accounts/{userId}/maps/{mapId}/env/{envId}/download"))
                 .routeParam("userId", downloadMapReq.getUserId())
                 .routeParam("mapId", downloadMapReq.getMapId())
                 .routeParam("envId", downloadMapReq.getEnvId());
@@ -61,7 +61,7 @@ public class MapServiceAPI {
     }
 
     public GetMapsRes getMaps(GetMapsReq getMapsReq) throws Exception{
-        HttpRequest request = Unirest.get(url("/accounts/:userId/maps"))
+        HttpRequest request = Unirest.get(url("/accounts/{userId}/maps"))
                 .routeParam("userId", getMapsReq.getUserId());
         if(getMapsReq.getMaxEnvs() != null)
             request = request.queryString("maxEnvs", getMapsReq.getMaxEnvs());
@@ -73,7 +73,7 @@ public class MapServiceAPI {
     }
 
     public GetMapEnvRes getMapEnv(GetMapEnvReq getMapEnvReq) throws Exception {
-        HttpRequest request = Unirest.get(url("/accounts/:userId/maps/:mapId/env/:envId"))
+        HttpRequest request = Unirest.get(url("/accounts/{userId}/maps/{mapId}/env/{envId}"))
                 .routeParam("userId", getMapEnvReq.getUserId())
                 .routeParam("mapId", getMapEnvReq.getMapId())
                 .routeParam("envId", getMapEnvReq.getEnvId());
@@ -87,7 +87,7 @@ public class MapServiceAPI {
     }
 
     public UploadReleaseSuccess uploadRelease(String userId, String mapId, String envId, InputStream fileInput) throws Exception{
-        HttpRequestWithBody request = Unirest.post(url("/accounts/:userId/maps/:mapId/env/:envId"))
+        HttpRequestWithBody request = Unirest.post(url("/accounts/{userId}/maps/:mapId/env/{envId}"))
                 .routeParam("userId", userId)
                 .routeParam("mapId", mapId)
                 .routeParam("envId", envId);
