@@ -67,6 +67,8 @@ public class MapServiceAPI {
             request = request.queryString("maxEnvs", getMapsReq.getMaxEnvs());
         if(getMapsReq.getStartAfter() != null)
             request = request.queryString("startAfter", getMapsReq.getStartAfter());
+        if(getMapsReq.getPrefixFilter() != null)
+            request.queryString("mapPrefix", getMapsReq.getPrefixFilter());
         String body = request.asString().getBody();
         GetMapsRes getMapsRes = GSON.fromJson(body, GetMapsRes.class);
         return getMapsRes;
