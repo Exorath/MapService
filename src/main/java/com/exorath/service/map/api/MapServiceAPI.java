@@ -16,6 +16,7 @@
 
 package com.exorath.service.map.api;
 
+import com.amazonaws.util.IOUtils;
 import com.exorath.service.map.res.*;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
@@ -24,6 +25,7 @@ import com.mashape.unirest.request.HttpRequestWithBody;
 import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,15 +50,15 @@ public class MapServiceAPI {
         return request.asBinary().getBody();
     }
 
-    public void downloadMapToFolder(DownloadMapReq downloadMapReq, File mapDir) throws Exception{
-        if (!mapDir.exists())
-            mapDir.mkdirs();
-        if (!mapDir.isDirectory())
+    public void downloadMapToFolder(DownloadMapReq downloadMapReq, File mapsDir) throws Exception{
+        if (!mapsDir.exists())
+            mapsDir.mkdirs();
+        if (!mapsDir.isDirectory())
             throw new IllegalStateException("Mapsdir is not a directory.");
         try(InputStream inputStream = downloadMap(downloadMapReq)){
             if(inputStream == null)
                 throw new NullPointerException("Failed to download a map.");
-            unZip(inputStream, mapDir);
+            unZip(inputStream, mapsDir, downloadMapReq.getMapId());
         }
     }
 
@@ -102,7 +104,11 @@ public class MapServiceAPI {
         return address + endpoint;
     }
 
-    private void unZip(InputStream inputStream, File outputFolder) throws IOException {
-        ZipUtil.unpack(inputStream, outputFolder);
+    private void unZip(InputStream inputStream, File mapsFolder, String mapName) throws IOException {
+        File zip = new File(mapsFolder, mapName);
+        try(FileOutputStream fos = new FileOutputStream(zip)){
+            IOUtils.copy(inputStream, fos);
+        }
+        ZipUtil.explode(zip);
     }
 }
